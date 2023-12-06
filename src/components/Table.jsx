@@ -40,6 +40,7 @@ function createData(id, dateString, name, type, profit, comment) {
 }
 
 // new feature
+// add new feature
 
 const rows = [
   createData(1, '2023-01-01', 'Cupcake', 'Обмен', 3.7, 67, 4.3),
