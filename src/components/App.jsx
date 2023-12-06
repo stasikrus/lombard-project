@@ -3,13 +3,18 @@ import Header from './Header'
 import TableComponent from './Table'
 import Container from '@mui/material/Container';
 import ResponsiveDrawer from './sidebar/sidebar';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+
 
 function App() {
   const [count, setCount] = useState(0)
 
   return (
     <>
-      <ResponsiveDrawer/>
+      <LocalizationProvider dateAdapter={AdapterDateFns} >
+         <ResponsiveDrawer/>
+       </LocalizationProvider>;
       {/* <Sidebar />
       <Header />
 

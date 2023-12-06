@@ -7,7 +7,6 @@ import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
-import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import TableSortLabel from '@mui/material/TableSortLabel';
 import Toolbar from '@mui/material/Toolbar';
@@ -19,32 +18,41 @@ import Tooltip from '@mui/material/Tooltip';
 import DeleteIcon from '@mui/icons-material/Delete';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { visuallyHidden } from '@mui/utils';
+import { TextField } from '@mui/material';
+import EditRoundedIcon from '@mui/icons-material/EditRounded';
+import CheckOutlinedIcon from '@mui/icons-material/CheckOutlined';
+import ClearOutlinedIcon from '@mui/icons-material/ClearOutlined';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import { DatePicker } from '@mui/x-date-pickers';
 
-function createData(id, name, type, fat, carbs, protein) {
+
+function createData(id, dateString, name, type, profit, comment) {
+  const date = new Date(dateString);
   return {
     id,
+    date,
     name,
     type,
-    fat,
-    carbs,
-    protein,
+    profit,
+    comment,
   };
 }
 
 const rows = [
-  createData(1, 'Cupcake', 305, 3.7, 67, 4.3),
-  createData(2, 'Donut', 452, 25.0, 51, 4.9),
-  createData(3, 'Eclair', 262, 16.0, 24, 6.0),
-  createData(4, 'Frozen yoghurt', 159, 6.0, 24, 4.0),
-  createData(5, 'Gingerbread', 356, 16.0, 49, 3.9),
-  createData(6, 'Honeycomb', 408, 3.2, 87, 6.5),
-  createData(7, 'Ice cream sandwich', 237, 9.0, 37, 4.3),
-  createData(8, 'Jelly Bean', 375, 0.0, 94, 0.0),
-  createData(9, 'KitKat', 518, 26.0, 65, 7.0),
-  createData(10, 'Lollipop', 392, 0.2, 98, 0.0),
-  createData(11, 'Marshmallow', 318, 0, 81, 2.0),
-  createData(12, 'Nougat', 360, 19.0, 9, 37.0),
-  createData(13, 'Oreo', 437, 18.0, 63, 4.0),
+  createData(1, '2023-01-01', 'Cupcake', 'Обмен', 3.7, 67, 4.3),
+  createData(2, '2023-01-01', 'Donut', 'Обмен', 25.0, 51, 4.9),
+  createData(3, '2023-01-01', 'Eclair', 'Обмен', 16.0, 24, 6.0),
+  createData(4, '2023-01-01','Frozen yoghurt', 'Обмен', 6.0, 24, 4.0),
+  createData(5, '2023-01-01','Gingerbread', 'Обмен', 16.0, 49, 3.9),
+  createData(6, '2023-01-01','Honeycomb', 'Обмен', 15.0, 87, 6.5),
+  createData(7, '2023-01-01','Ice cream sandwich', 'Обмен', 9.0, 37, 4.3),
+  createData(8, '2023-01-01','Jelly Bean', 'Обмен', 0.0, 94, 0.0),
+  createData(9, '2023-01-01','KitKat', 'Обмен', 26.0, 65, 7.0),
+  createData(10, '2023-01-01','Lollipop', 'Обмен', 0.2, 98, 0.0),
+  createData(11, '2023-01-01','Marshmallow', 'Обмен', 0, 81, 2.0),
+  createData(12, '2023-01-01','Nougat', 'Обмен', 19.0, 9, 37.0),
+  createData(13, '2023-01-01','Oreo', 'Обмен', 18.0, 63, 4.0),
 ];
 
 function descendingComparator(a, b, orderBy) {
@@ -81,6 +89,12 @@ function stableSort(array, comparator) {
 
 const headCells = [
   {
+    id: 'date',
+    numeric: false,
+    disablePadding: false,
+    label: 'Дата',
+  },
+  {
     id: 'name',
     numeric: false,
     disablePadding: true,
@@ -93,23 +107,17 @@ const headCells = [
     label: 'Тип',
   },
   {
-    id: 'fat',
+    id: 'profit',
     numeric: true,
     disablePadding: false,
-    label: 'Fat (g)',
+    label: 'Доход',
   },
   {
-    id: 'carbs',
+    id: 'comment',
     numeric: true,
     disablePadding: false,
-    label: 'Carbs (g)',
-  },
-  {
-    id: 'protein',
-    numeric: true,
-    disablePadding: false,
-    label: 'Protein (g)',
-  },
+    label: 'Комментарий',
+  },  
 ];
 
 function EnhancedTableHead(props) {
@@ -169,7 +177,7 @@ EnhancedTableHead.propTypes = {
 };
 
 function EnhancedTableToolbar(props) {
-  const { numSelected } = props;
+  const { numSelected, onEditClick } = props;
 
   return (
     <Toolbar
@@ -202,6 +210,14 @@ function EnhancedTableToolbar(props) {
         </Typography>
       )}
 
+      {numSelected > 0 && numSelected < 2 ? (
+        <Tooltip title="Edit">
+          <IconButton onClick={onEditClick}>
+            <EditRoundedIcon />
+          </IconButton>
+        </Tooltip>
+      ) : null}
+
       {numSelected > 0 ? (
         <Tooltip title="Delete">
           <IconButton>
@@ -221,15 +237,46 @@ function EnhancedTableToolbar(props) {
 
 EnhancedTableToolbar.propTypes = {
   numSelected: PropTypes.number.isRequired,
+  onEditClick: PropTypes.func.isRequired,
 };
 
 function TableComponent() {
   const [order, setOrder] = React.useState('asc');
   const [orderBy, setOrderBy] = React.useState('type');
   const [selected, setSelected] = React.useState([]);
-  const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  const [tableData, setTableData] = React.useState(rows);
+  const [editingRowId, setEditingRowId] = React.useState(null);
+  const [tempValues, setTempValues] = React.useState({});
 
+  const handleEditClick = () => {
+    if (selected.length === 1) {
+      setEditingRowId(selected[0]);
+    }
+  };
+  
+  const handleInputChange = (field, event) => {
+  setTempValues({
+    ...tempValues,
+    [field]: event.target.value,
+    });
+  };
+
+  const handleSave = (rowId) => {
+    const updatedData = tableData.map(row =>
+      row.id === rowId ? { ...row, ...tempValues } : row
+    );
+    setTableData(updatedData);
+    setEditingRowId(null);
+    setSelected([]); 
+    setTempValues({});
+    console.log(updatedData);
+  };
+
+  const handleCancel = () => {
+    setTempValues({});
+    setEditingRowId(null);
+  };  
+  
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
@@ -238,14 +285,23 @@ function TableComponent() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelected = rows.map((n) => n.id);
+      const newSelected = tableData.map((n) => n.id);
       setSelected(newSelected);
       return;
     }
     setSelected([]);
   };
 
+  const handleClickOnTextField = (event) => {
+    event.stopPropagation();
+  };
+
   const handleClick = (event, id) => {
+    if (event.target.getAttribute("data-datepicker-clicked") === "true") {
+      event.target.removeAttribute("data-datepicker-clicked");
+      return;
+    }
+
     const selectedIndex = selected.indexOf(id);
     let newSelected = [];
 
@@ -264,34 +320,14 @@ function TableComponent() {
     setSelected(newSelected);
   };
 
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
   const isSelected = (id) => selected.indexOf(id) !== -1;
 
   // Avoid a layout jump when reaching the last page with empty rows.
-  const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
-
-  const visibleRows = React.useMemo(
-    () =>
-      stableSort(rows, getComparator(order, orderBy)).slice(
-        page * rowsPerPage,
-        page * rowsPerPage + rowsPerPage,
-      ),
-    [order, orderBy, page, rowsPerPage],
-  );
 
   return (
-    <Box sx={{ width: '100%' }}>
+    <Box sx={{ width: '100%'}}>
       <Paper sx={{ width: '100%', mb: 2 }}>
-        <EnhancedTableToolbar numSelected={selected.length} />
+        <EnhancedTableToolbar numSelected={selected.length} onEditClick={handleEditClick} />
         <TableContainer>
           <Table
             sx={{ minWidth: 750 }}
@@ -304,69 +340,114 @@ function TableComponent() {
               orderBy={orderBy}
               onSelectAllClick={handleSelectAllClick}
               onRequestSort={handleRequestSort}
-              rowCount={rows.length}
+              rowCount={tableData.length}
             />
             <TableBody>
-              {visibleRows.map((row, index) => {
+              {stableSort(tableData, getComparator(order, orderBy)).map((row, index) => {
                 const isItemSelected = isSelected(row.id);
                 const labelId = `enhanced-table-checkbox-${index}`;
 
                 return (
                   <TableRow
                     hover
-                    onClick={(event) => handleClick(event, row.id)}
                     role="checkbox"
                     aria-checked={isItemSelected}
                     tabIndex={-1}
                     key={row.id}
                     selected={isItemSelected}
                     sx={{ cursor: 'pointer' }}
+                    onClick={(event) => handleClick(event, row.id)}
                   >
                     <TableCell padding="checkbox">
                       <Checkbox
                         color="primary"
-                        checked={isItemSelected}
+                        checked={isItemSelected}                     
                         inputProps={{
                           'aria-labelledby': labelId,
                         }}
                       />
                     </TableCell>
-                    <TableCell
-                      component="th"
-                      id={labelId}
-                      scope="row"
-                      padding="none"
-                    >
-                      {row.name}
-                    </TableCell>
-                    <TableCell align="right">{row.type}</TableCell>
-                    <TableCell align="right">{row.fat}</TableCell>
-                    <TableCell align="right">{row.carbs}</TableCell>
-                    <TableCell align="right">{row.protein}</TableCell>
+                    {editingRowId === row.id ? (
+                      <>
+                        <TableCell align="right" onClick={handleClickOnTextField}>
+                          <DatePicker
+                            value={tempValues.date ?? row.date}
+                            onChange={(newValue) => {
+                              setTempValues({ ...tempValues, date: newValue });
+                            }}
+                            renderInput={(params) => (
+                              <TextField 
+                                {...params} 
+                              />
+                            )}
+                          />
+                        </TableCell>
+                        <TableCell padding="none">
+                          <TextField
+                            defaultValue={row.name}
+                            onClick={handleClickOnTextField}
+                            onChange={(event) => handleInputChange('name', event)}
+                          />
+                        </TableCell>
+                        <TableCell align="right">
+                          <Select
+                            value={tempValues.type ?? row.type}
+                            sx={{ minWidth: '150px' }}
+                            onChange={(event) => handleInputChange('type', event)}
+                            onClick={handleClickOnTextField}
+                          >
+                            <MenuItem value="Продажа">Продажа</MenuItem>
+                            <MenuItem value="Обмен">Обмен</MenuItem>
+                          </Select>
+                        </TableCell>
+                        <TableCell align="right">
+                          <TextField
+                            defaultValue={row.profit}
+                            onClick={handleClickOnTextField}
+                            onChange={(event) => handleInputChange('profit', event)}
+                          />
+                        </TableCell>
+                        <TableCell align="right">
+                          <TextField
+                            defaultValue={row.comment}
+                            onClick={handleClickOnTextField}
+                            onChange={(event) => handleInputChange('comment', event)}
+                          />
+                        </TableCell>
+                        <TableCell align='right'>
+                          <Tooltip title="Сохранить">
+                            <IconButton onClick={() => handleSave(row.id)}>
+                              <CheckOutlinedIcon fontSize='large' />
+                            </IconButton>
+                          </Tooltip>
+                          <Tooltip title="Отменить">
+                            <IconButton onClick={handleCancel}>
+                              <ClearOutlinedIcon fontSize='large'/>
+                            </IconButton>
+                          </Tooltip>
+                        </TableCell>
+                      </>
+                    ) : (
+                      <>
+                        <TableCell align="left">{row.date.toLocaleDateString()}</TableCell>
+                        <TableCell component="th" id={labelId} scope="row" padding="none">
+                          {row.name}
+                        </TableCell>
+                        <TableCell align="right">{row.type}</TableCell>
+                        <TableCell align="right">{row.profit}</TableCell>
+                        <TableCell align="right">{row.comment}</TableCell>
+                      </>
+                    )}
                   </TableRow>
                 );
-              })}
-              {emptyRows > 0 && (
+              })}   
                 <TableRow
-                  style={{
-                    height: (53) * emptyRows,
-                  }}
                 >
                   <TableCell colSpan={6} />
-                </TableRow>
-              )}
+                </TableRow>             
             </TableBody>
           </Table>
         </TableContainer>
-        <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
-          component="div"
-          count={rows.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
       </Paper>
     </Box>
   );
