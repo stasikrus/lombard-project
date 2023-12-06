@@ -39,6 +39,8 @@ function createData(id, dateString, name, type, profit, comment) {
   };
 }
 
+// new feature
+
 const rows = [
   createData(1, '2023-01-01', 'Cupcake', 'Обмен', 3.7, 67, 4.3),
   createData(2, '2023-01-01', 'Donut', 'Обмен', 25.0, 51, 4.9),
